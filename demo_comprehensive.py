@@ -190,7 +190,7 @@ class SpeedEstimator:
         
         # Convert pixel distance to real-world distance
         pixel_distance = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-        real_distance = pixel_distance * (self.real_width / 100)  # Assuming 100 pixel width
+        real_distance = pixel_distance * (self.real_width / self.pixels_per_unit)
         
         # Calculate speed in m/s
         time_diff = t2 - t1

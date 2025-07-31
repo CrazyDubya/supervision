@@ -5,7 +5,7 @@ Comprehensive Supervision Demo: Smart Traffic Analytics System
 This demo showcases the full functionality of the Supervision library by creating
 a comprehensive traffic analytics system that demonstrates:
 
-1. Multi-object detection and tracking
+1. Multi-object detection and tracking with real models (YOLO, Roboflow) or mock data
 2. Zone-based analytics (entry/exit counting, time spent in zones)
 3. Speed estimation using perspective transformation
 4. Movement heatmap generation
@@ -15,7 +15,8 @@ a comprehensive traffic analytics system that demonstrates:
 8. Real-time performance monitoring
 
 Features demonstrated:
-- Object detection with multiple model connectors
+- Real object detection with YOLO or Roboflow Inference models
+- Mock detection model for testing and demonstration
 - ByteTracker for consistent tracking
 - PolygonZone and LineZone for spatial analytics
 - Speed calculation with perspective transformation
@@ -25,6 +26,11 @@ Features demonstrated:
 - CSV and JSON data export
 - FPS monitoring
 - Dataset operations
+
+Model Support:
+- YOLO models (via ultralytics): Local .pt files, automatic download
+- Roboflow Inference: Cloud-hosted models via API
+- Mock model: For testing and demonstration purposes
 
 Author: Supervision Demo
 """
@@ -262,9 +268,10 @@ class ZoneAnalyzer:
 class SmartTrafficAnalytics:
     """Main analytics system combining all features"""
     
-    def __init__(self, config: AnalyticsConfig):
+    def __init__(self, config: AnalyticsConfig, model=None):
         self.config = config
         self.metrics: Dict[int, DetectionMetrics] = {}
+        self.model = model  # Store model reference for class names
         
         # Initialize components
         self.transformer = ViewTransformer(
@@ -396,7 +403,18 @@ class SmartTrafficAnalytics:
         if detections.tracker_id is not None:
             for i, track_id in enumerate(detections.tracker_id):
                 if track_id is not None:
-                    class_name = f"Object_{detections.class_id[i] if detections.class_id is not None else 0}"
+                    # Get class name from model if available
+                    class_id = detections.class_id[i] if detections.class_id is not None else 0
+                    if self.model and hasattr(self.model, 'class_names') and self.model.class_names:
+                        if isinstance(self.model.class_names, dict):
+                            class_name = self.model.class_names.get(class_id, f"Class_{class_id}")
+                        elif isinstance(self.model.class_names, list) and class_id < len(self.model.class_names):
+                            class_name = self.model.class_names[class_id]
+                        else:
+                            class_name = f"Class_{class_id}"
+                    else:
+                        class_name = f"Object_{class_id}"
+                    
                     confidence = detections.confidence[i]
                     speed_text = f"{speeds.get(track_id, 0.0):.1f} km/h" if track_id in speeds else "N/A"
                     
@@ -487,6 +505,66 @@ class SmartTrafficAnalytics:
         print(f"Analytics exported to {json_path} and {csv_path}")
 
 
+def create_yolo_model(model_path: str = "yolov8n.pt"):
+    """Create a YOLO detection model"""
+    try:
+        from ultralytics import YOLO
+        model = YOLO(model_path)
+        
+        class YOLOModel:
+            def __init__(self, yolo_model):
+                self.model = yolo_model
+                self.class_names = self.model.names
+                
+            def __call__(self, frame):
+                results = self.model(frame, verbose=False)
+                detections = sv.Detections.from_ultralytics(results[0])
+                return detections
+        
+        return YOLOModel(model)
+    except ImportError:
+        print("Warning: ultralytics not available. Install with: pip install ultralytics")
+        return None
+    except Exception as e:
+        print(f"Error loading YOLO model: {e}")
+        return None
+
+
+def create_roboflow_model(model_id: str, api_key: str = None):
+    """Create a Roboflow Inference model"""
+    try:
+        from inference.models.utils import get_roboflow_model
+        import os
+        
+        # Get API key from environment if not provided
+        if api_key is None:
+            api_key = os.environ.get("ROBOFLOW_API_KEY")
+            
+        if api_key is None:
+            print("Warning: Roboflow API key not provided. Set ROBOFLOW_API_KEY environment variable.")
+            return None
+            
+        model = get_roboflow_model(model_id=model_id, api_key=api_key)
+        
+        class RoboflowModel:
+            def __init__(self, rf_model):
+                self.model = rf_model
+                self.class_names = []  # Will be populated from first inference
+                
+            def __call__(self, frame):
+                results = self.model.infer(frame)
+                detections = sv.Detections.from_inference(results[0])
+                return detections
+        
+        return RoboflowModel(model)
+    except ImportError:
+        print("Warning: inference not available. Install with: pip install inference")
+        return None
+    except Exception as e:
+        print(f"Error loading Roboflow model: {e}")
+        return None
+
+
 def create_demo_model():
     """Create a mock detection model for demo purposes"""
     class MockModel:
@@ -521,14 +599,53 @@ def create_demo_model():
     return MockModel()
 
 
-def process_video_demo(source_path: str, output_path: str, config: AnalyticsConfig):
+def create_model(model_type: str = "mock", model_path: str = None, model_id: str = None, api_key: str = None):
+    """Create detection model based on type
+    
+    Args:
+        model_type: Type of model ("yolo", "roboflow", "mock")
+        model_path: Path to model file (for YOLO)
+        model_id: Model ID (for Roboflow)
+        api_key: API key (for Roboflow)
+    
+    Returns:
+        Model instance or None if creation failed
+    """
+    if model_type.lower() == "yolo":
+        model_path = model_path or "yolov8n.pt"  # Default to nano model
+        print(f"Loading YOLO model: {model_path}")
+        model = create_yolo_model(model_path)
+        if model:
+            print("✓ YOLO model loaded successfully")
+            return model
+        else:
+            print("✗ Failed to load YOLO model, falling back to mock model")
+            
+    elif model_type.lower() == "roboflow":
+        model_id = model_id or "vehicle-count-in-drone-video/6"  # Default model
+        print(f"Loading Roboflow model: {model_id}")
+        model = create_roboflow_model(model_id, api_key)
+        if model:
+            print("✓ Roboflow model loaded successfully")
+            return model
+        else:
+            print("✗ Failed to load Roboflow model, falling back to mock model")
+    
+    # Default to mock model
+    print("Using mock model for demonstration")
+    return create_demo_model()
+
+
+def process_video_demo(source_path: str, output_path: str, config: AnalyticsConfig, 
+                      model_type: str = "mock", model_path: str = None, 
+                      model_id: str = None, api_key: str = None):
     """Process video with full analytics pipeline"""
     
-    # Initialize model (mock for demo - replace with real model)
-    model = create_demo_model()
+    # Initialize model
+    model = create_model(model_type, model_path, model_id, api_key)
     
     # Initialize analytics system
-    analytics = SmartTrafficAnalytics(config)
+    analytics = SmartTrafficAnalytics(config, model)
     
     # Setup video processing
     video_info = sv.VideoInfo.from_video_path(source_path)
@@ -627,6 +744,13 @@ def main():
     parser.add_argument("--create-demo-video", action="store_true", help="Create demo video")
     parser.add_argument("--demo-duration", type=int, default=30, help="Demo video duration in seconds")
     
+    # Model selection arguments
+    parser.add_argument("--model-type", type=str, choices=["mock", "yolo", "roboflow"], 
+                       default="yolo", help="Type of detection model to use")
+    parser.add_argument("--model-path", type=str, help="Path to YOLO model file (default: yolov8n.pt)")
+    parser.add_argument("--model-id", type=str, help="Roboflow model ID (default: vehicle-count-in-drone-video/6)")
+    parser.add_argument("--api-key", type=str, help="Roboflow API key (or set ROBOFLOW_API_KEY env var)")
+    
     args = parser.parse_args()
     
     # Create output directory
@@ -649,11 +773,28 @@ def main():
         print("Starting comprehensive traffic analytics demo...")
         print(f"Source: {args.source}")
         print(f"Output: {output_path}")
+        print(f"Model type: {args.model_type}")
         
-        process_video_demo(args.source, str(output_path), config)
+        process_video_demo(
+            source_path=args.source,
+            output_path=str(output_path), 
+            config=config,
+            model_type=args.model_type,
+            model_path=args.model_path,
+            model_id=args.model_id,
+            api_key=args.api_key
+        )
     else:
         print("Please provide a source video with --source or use --create-demo-video")
-        print("Example: python demo_comprehensive.py --create-demo-video --demo-duration 60")
+        print("\nExamples:")
+        print("  # Use YOLO model (default nano model)")
+        print("  python demo_comprehensive.py --create-demo-video --model-type yolo")
+        print("  # Use specific YOLO model")
+        print("  python demo_comprehensive.py --source video.mp4 --model-type yolo --model-path yolov8s.pt") 
+        print("  # Use Roboflow model")
+        print("  python demo_comprehensive.py --source video.mp4 --model-type roboflow --model-id your-model/1")
+        print("  # Use mock model for testing")
+        print("  python demo_comprehensive.py --create-demo-video --model-type mock")
 
 
 if __name__ == "__main__":

@@ -9,9 +9,12 @@ The Smart Traffic Analytics System is a complete demonstration that combines mul
 ### Core Features Demonstrated
 
 1. **Multi-Object Detection & Tracking**
-   - Mock detection model (easily replaceable with real models)
+   - **Real YOLO models** (YOLOv8 nano, small, medium, large, xlarge)
+   - **Roboflow Inference** integration for cloud-hosted models
+   - **Mock detection model** for testing and demonstration
    - ByteTracker for consistent object tracking across frames
-   - Support for multiple object classes (vehicle, person, bicycle)
+   - Support for all COCO dataset classes (80+ object types)
+   - Automatic model download and initialization
 
 2. **Zone-Based Analytics**
    - Entry and exit zone monitoring
@@ -55,27 +58,86 @@ A complete, production-ready script that can be run from the command line with v
 ### Jupyter Notebook (`demo_comprehensive.ipynb`)
 An interactive notebook version perfect for exploration, experimentation, and learning.
 
+## 🤖 Detection Model Options
+
+The demo supports three types of detection models:
+
+### 1. YOLO Models (Recommended)
+- **Local models**: Uses Ultralytics YOLOv8 family
+- **Auto-download**: Models download automatically if not found
+- **Available models**: `yolov8n.pt`, `yolov8s.pt`, `yolov8m.pt`, `yolov8l.pt`, `yolov8x.pt`
+- **Classes**: Full COCO dataset (80 object classes)
+- **Performance**: Fast inference, good accuracy
+
+### 2. Roboflow Inference Models
+- **Cloud-hosted**: Access thousands of pre-trained models
+- **Custom models**: Use your own trained models
+- **API-based**: Requires Roboflow API key
+- **Specialized**: Traffic, security, retail-specific models available
+
+### 3. Mock Model (Testing)
+- **No dependencies**: Works without ML libraries
+- **Random detections**: For testing pipeline functionality
+- **Fast execution**: Useful for development and debugging
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
+#### Basic Requirements (all models)
 ```bash
 pip install supervision opencv-python tqdm matplotlib pillow defusedxml scipy
 ```
 
+#### For YOLO Models (recommended)
+```bash
+pip install ultralytics
+```
+
+#### For Roboflow Inference Models
+```bash
+pip install inference
+export ROBOFLOW_API_KEY="your_api_key_here"
+```
+
 ### Running the Demo
 
-#### Option 1: Create a Demo Video and Process It
+### Running the Demo
+
+#### Basic Usage with YOLO (Recommended)
 ```bash
+# Create demo video and process with default YOLO model (yolov8n.pt)
 python demo_comprehensive.py --create-demo-video --demo-duration 30
+
+# Process your own video with YOLO
+python demo_comprehensive.py --source traffic_video.mp4 --model-type yolo
 ```
 
-#### Option 2: Process Your Own Video
+#### Advanced YOLO Usage
 ```bash
-python demo_comprehensive.py --source your_video.mp4 --output results/
+# Use a larger YOLO model for better accuracy
+python demo_comprehensive.py --source video.mp4 --model-type yolo --model-path yolov8s.pt
+
+# Use custom YOLO model
+python demo_comprehensive.py --source video.mp4 --model-type yolo --model-path path/to/custom.pt
 ```
 
-#### Option 3: Interactive Jupyter Notebook
+#### Roboflow Inference Usage
+```bash
+# Use default vehicle detection model
+python demo_comprehensive.py --source video.mp4 --model-type roboflow
+
+# Use specific Roboflow model
+python demo_comprehensive.py --source video.mp4 --model-type roboflow --model-id your-model/1 --api-key YOUR_KEY
+```
+
+#### Testing with Mock Model
+```bash
+# Fast testing without ML dependencies
+python demo_comprehensive.py --create-demo-video --model-type mock
+```
+
+#### Interactive Jupyter Notebook
 ```bash
 jupyter notebook demo_comprehensive.ipynb
 ```

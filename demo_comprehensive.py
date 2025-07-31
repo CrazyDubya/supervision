@@ -287,9 +287,9 @@ class SmartTrafficAnalytics:
         
         # Initialize tracker
         self.tracker = sv.ByteTrack(
-            lost_track_buffer=config.track_buffer,
-            track_activation_threshold=config.track_thresh,
-            minimum_matching_threshold=config.match_thresh
+            frame_rate=config.track_buffer,
+            track_thresh=config.track_thresh,
+            match_thresh=config.match_thresh
         )
         
         # Initialize annotators

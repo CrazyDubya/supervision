@@ -558,7 +558,7 @@ def create_roboflow_model(model_id: str, api_key: str = None):
         
         return RoboflowModel(model)
     except ImportError:
-        print("Warning: inference not available. Install with: pip install inference")
+        print("Warning: The 'inference' package is required only for using Roboflow cloud models. Install it with: pip install inference")
         return None
     except Exception as e:
         print(f"Error loading Roboflow model: {e}")

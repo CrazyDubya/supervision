@@ -1,0 +1,99 @@
+{
+  "total_tracks": 7,
+  "total_frames": 150,
+  "track_metrics": {
+    "1": {
+      "track_id": 1,
+      "class_id": 32,
+      "lifetime": 3.4333333333333336,
+      "total_detections": 104,
+      "average_speed": 50.86448669433594,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 126.9373779296875,
+      "min_speed": 16.44483757019043,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    },
+    "3": {
+      "track_id": 3,
+      "class_id": 32,
+      "lifetime": 1.833333333333334,
+      "total_detections": 44,
+      "average_speed": 98.17462158203125,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 151.95765686035156,
+      "min_speed": 44.55392074584961,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    },
+    "4": {
+      "track_id": 4,
+      "class_id": 29,
+      "lifetime": 1.1999999999999997,
+      "total_detections": 32,
+      "average_speed": 117.95367431640625,
+      "zone_entries": {
+        "1": 2.3333333333333335
+      },
+      "zone_exits": {},
+      "max_speed": 178.4437713623047,
+      "min_speed": 57.30674362182617,
+      "total_zone_entries": 1,
+      "total_zone_exits": 0
+    },
+    "5": {
+      "track_id": 5,
+      "class_id": 29,
+      "lifetime": 0.5666666666666664,
+      "total_detections": 18,
+      "average_speed": 56.30653381347656,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 100.54956817626953,
+      "min_speed": 41.05070877075195,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    },
+    "6": {
+      "track_id": 6,
+      "class_id": 29,
+      "lifetime": 0.1333333333333333,
+      "total_detections": 5,
+      "average_speed": 119.99456787109375,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 160.2445526123047,
+      "min_speed": 93.57481384277344,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    },
+    "7": {
+      "track_id": 7,
+      "class_id": 29,
+      "lifetime": 0.20000000000000018,
+      "total_detections": 7,
+      "average_speed": 114.60128784179688,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 181.02430725097656,
+      "min_speed": 76.17262268066406,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    },
+    "8": {
+      "track_id": 8,
+      "class_id": 32,
+      "lifetime": 0.43333333333333357,
+      "total_detections": 14,
+      "average_speed": 119.05268859863281,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 244.15591430664062,
+      "min_speed": 56.425533294677734,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    }
+  }
+}

@@ -695,8 +695,13 @@ def process_video_demo(source_path: str, output_path: str, config: AnalyticsConf
 def create_demo_video(output_path: str, duration: int = 30, fps: int = 30):
     """Create a demo video with moving objects for testing"""
     width, height = 800, 600
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+    try:
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')  # Use a widely supported codec
+        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+    except Exception as e:
+        print(f"Primary codec 'XVID' failed with error: {e}. Trying fallback codec 'mp4v'.")
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Fallback to 'mp4v'
+        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     
     total_frames = duration * fps
     

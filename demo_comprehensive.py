@@ -622,7 +622,8 @@ def create_model(model_type: str = "mock", model_path: str = None, model_id: str
             print("✗ Failed to load YOLO model, falling back to mock model")
             
     elif model_type.lower() == "roboflow":
-        model_id = model_id or "vehicle-count-in-drone-video/6"  # Default model
+        if not model_id:
+            raise ValueError("Model ID is required for Roboflow models. Please provide a valid model_id.")
         print(f"Loading Roboflow model: {model_id}")
         model = create_roboflow_model(model_id, api_key)
         if model:

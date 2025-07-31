@@ -1,0 +1,45 @@
+{
+  "total_tracks": 3,
+  "total_frames": 90,
+  "track_metrics": {
+    "31": {
+      "track_id": 31,
+      "class_id": 2,
+      "lifetime": 0.4666666666666667,
+      "total_detections": 2,
+      "average_speed": 632.3273315429688,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 632.3273315429688,
+      "min_speed": 632.3273315429688,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    },
+    "139": {
+      "track_id": 139,
+      "class_id": 1,
+      "lifetime": 0.0,
+      "total_detections": 1,
+      "average_speed": 0.0,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 0.0,
+      "min_speed": 0.0,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    },
+    "187": {
+      "track_id": 187,
+      "class_id": 2,
+      "lifetime": 0.0,
+      "total_detections": 1,
+      "average_speed": 0.0,
+      "zone_entries": {},
+      "zone_exits": {},
+      "max_speed": 0.0,
+      "min_speed": 0.0,
+      "total_zone_entries": 0,
+      "total_zone_exits": 0
+    }
+  }
+}

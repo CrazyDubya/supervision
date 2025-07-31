@@ -280,9 +280,9 @@ class SmartTrafficAnalytics:
         
         # Initialize tracker
         self.tracker = sv.ByteTrack(
-            track_buffer=config.track_buffer,
-            track_thresh=config.track_thresh,
-            match_thresh=config.match_thresh
+            lost_track_buffer=config.track_buffer,
+            track_activation_threshold=config.track_thresh,
+            minimum_matching_threshold=config.match_thresh
         )
         
         # Initialize annotators
@@ -328,11 +328,11 @@ class SmartTrafficAnalytics:
         
         # Compile frame analytics
         frame_analytics = {
-            'timestamp': timestamp,
-            'detection_count': len(detections),
-            'speeds': speeds,
+            'timestamp': float(timestamp),
+            'detection_count': int(len(detections)),
+            'speeds': {int(k): float(v) for k, v in speeds.items()},
             'zone_analytics': zone_results,
-            'active_tracks': len(set(detections.tracker_id)) if detections.tracker_id is not None else 0
+            'active_tracks': int(len(set(detections.tracker_id)) if detections.tracker_id is not None else 0)
         }
         
         self.frame_analytics.append(frame_analytics)
@@ -450,15 +450,17 @@ class SmartTrafficAnalytics:
         
         for track_id, metric in self.metrics.items():
             summary_data['track_metrics'][str(track_id)] = {
-                'track_id': metric.track_id,
-                'class_id': metric.class_id,
-                'lifetime': metric.lifetime,
-                'total_detections': metric.total_detections,
-                'average_speed': metric.average_speed,
-                'zone_entries': metric.zone_entries,
-                'zone_exits': metric.zone_exits,
-                'max_speed': max(metric.speeds) if metric.speeds else 0,
-                'min_speed': min(metric.speeds) if metric.speeds else 0
+                'track_id': int(metric.track_id),
+                'class_id': int(metric.class_id),
+                'lifetime': float(metric.lifetime),
+                'total_detections': int(metric.total_detections),
+                'average_speed': float(metric.average_speed),
+                'zone_entries': {int(k): float(v) for k, v in metric.zone_entries.items()},
+                'zone_exits': {int(k): float(v) for k, v in metric.zone_exits.items()},
+                'max_speed': float(max(metric.speeds)) if metric.speeds else 0.0,
+                'min_speed': float(min(metric.speeds)) if metric.speeds else 0.0,
+                'total_zone_entries': int(len(metric.zone_entries)),
+                'total_zone_exits': int(len(metric.zone_exits))
             }
         
         # Save JSON summary
